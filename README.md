@@ -1,0 +1,154 @@
+[Dai1de la creacion.txt](https://github.com/user-attachments/files/23122347/Dai1de.la.creacion.txt)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Día 1 de la Creación</title>
+<style>
+  body {
+    background-color: #222;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+  }
+  canvas {
+    background-color: #000;
+    display: block;
+    margin: 20px auto;
+    border: 4px solid #fff;
+  }
+  #quiz {
+    display: none;
+    margin-top: 20px;
+  }
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>Día 1 de la Creación</h1>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+
+<div id="quiz">
+  <h2>¡Felicidades! Responde estas preguntas:</h2>
+  <div id="question"></div>
+  <div id="answers"></div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const tileSize = 32;
+const mapWidth = canvas.width / tileSize;
+const mapHeight = canvas.height / tileSize;
+
+// Player estilo pixel art
+const player = {
+  x: 5,
+  y: 5,
+  color: 'blue'
+};
+
+// Orbes de luz y oscuridad
+const orbs = [
+  {x: 2, y: 2, type: 'light', collected: false},
+  {x: 7, y: 7, type: 'dark', collected: false}
+];
+
+// Meta para orbes
+const goals = [
+  {x: 1, y: 1, type: 'light'},
+  {x: 8, y: 8, type: 'dark'}
+];
+
+// Movimiento con teclas
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowUp' && player.y > 0) player.y--;
+  if(e.key === 'ArrowDown' && player.y < mapHeight-1) player.y++;
+  if(e.key === 'ArrowLeft' && player.x > 0) player.x--;
+  if(e.key === 'ArrowRight' && player.x < mapWidth-1) player.x--;
+  checkOrbs();
+  draw();
+});
+
+// Revisar si jugador llegó a un orbe
+function checkOrbs() {
+  orbs.forEach(orb => {
+    if(!orb.collected && player.x === orb.x && player.y === orb.y) {
+      orb.collected = true;
+      alert(`Recogiste el orbe ${orb.type}`);
+    }
+  });
+  // Revisar si todos los orbes están recogidos para iniciar quiz
+  if(orbs.every(o => o.collected)) startQuiz();
+}
+
+// Dibujo del mapa y personajes
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Dibujar meta de orbes
+  goals.forEach(g => {
+    ctx.fillStyle = g.type === 'light' ? 'yellow' : 'purple';
+    ctx.fillRect(g.x*tileSize, g.y*tileSize, tileSize, tileSize);
+  });
+  
+  // Dibujar orbes
+  orbs.forEach(o => {
+    if(!o.collected) {
+      ctx.fillStyle = o.type === 'light' ? 'white' : 'black';
+      ctx.fillRect(o.x*tileSize+8, o.y*tileSize+8, tileSize-16, tileSize-16);
+    }
+  });
+  
+  // Dibujar jugador
+  ctx.fillStyle = player.color;
+  ctx.fillRect(player.x*tileSize, player.y*tileSize, tileSize, tileSize);
+}
+
+draw();
+
+// Quiz al final
+const questions = [
+  {q: "¿Qué creó Dios en el Día 1?", options:["Animales","Luz y oscuridad","Plantas"], answer:1},
+  {q: "¿Qué representa la luz?", options:["El día","La noche","Los animales"], answer:0},
+  {q: "¿Qué representa la oscuridad?", options:["La noche","El cielo","La tierra"], answer:0}
+];
+
+let currentQ = 0;
+
+function startQuiz() {
+  document.getElementById('quiz').style.display = 'block';
+  canvas.style.display = 'none';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('question').innerText = q.q;
+  const ansDiv = document.getElementById('answers');
+  ansDiv.innerHTML = '';
+  q.options.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(i);
+    ansDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(i) {
+  if(i === questions[currentQ].answer) alert('¡Correcto!');
+  else alert('Incorrecto');
+  currentQ++;
+  if(currentQ < questions.length) showQuestion();
+  else alert('¡Terminaste el juego! Día 1 completado.');
+}
+</script>
+
+</body>
+</html>
